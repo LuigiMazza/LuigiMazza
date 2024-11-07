@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "title": "The Matrix",
+    "tags": ["action", "sci-fi"]
+  },
+  {
+    "id": 2,
+    "title": "Inception",
+    "tags": ["thriller", "sci-fi"]
+  },
+  {
+    "id": 3,
+    "title": "The Godfather",
+    "tags": ["classic", "drama"]
+  }
+]
