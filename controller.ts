@@ -1,31 +1,25 @@
-import { PelisCollection } from "./models";
-
-type Options = {
-  id?: number;
-  search?: {
-    title?: string;
-    tag?: string;
-  };
-};
+import { PelisCollection, Peli } from "./models"; // ← También aplica Mejora 3
 
 export class PelisController {
-  private collection: PelisCollection;
+  collection: PelisCollection;
 
   constructor() {
     this.collection = new PelisCollection();
   }
 
-  async get(options?: Options) {
+  async get(options?: { id?: number; search?: any }): Promise<Peli[]> {
     if (options?.id) {
-      return this.collection.getById(options.id);
-    } else if (options?.search) {
-      return this.collection.search(options.search);
-    } else {
-      return this.collection.getAll();
+      const peli = await this.collection.getById(options.id);
+      return peli ? [peli] : [];
     }
+    if (options?.search) {
+      return this.collection.search(options.search);
+    }
+    return this.collection.getAll();
   }
 
-  async add(peli: Peli) {
-    return this.collection.add(peli);
+  // ✅ 2. getOne: devuelve el primer resultado
+  getOne(options: { id?: number; search?: any }): Promise<Peli | undefined> {
+    return this.get(options).then((arr) => arr[0]);
   }
 }
