@@ -1,24 +1,29 @@
-import { PelisCollection, Peli } from "./models";
+import minimist from "minimist";
+import { PelisController } from "./controller";
 
-export class PelisController {
-  collection: PelisCollection;
+async function main() {
+  const args = minimist(process.argv.slice(2));
+  const controller = new PelisController();
 
-  constructor() {
-    this.collection = new PelisCollection();
-  }
-
-  async get(options?: { id?: number; search?: any }): Promise<Peli[]> {
-    if (options?.id) {
-      const peli = await this.collection.getById(options.id);
-      return peli ? [peli] : [];
-    }
-    if (options?.search) {
-      return this.collection.search(options.search);
-    }
-    return this.collection.getAll();
-  }
-
-  getOne(options: { id?: number; search?: any }): Promise<Peli | undefined> {
-    return this.get(options).then((arr) => arr[0]);
+  if (args._[0] === "add") {
+    const success = await controller.collection.add({
+      id: Number(args.id),
+      title: String(args.title),
+      tags: Array.isArray(args.tags) ? args.tags : [String(args.tags)],
+    });
+    console.log(success);
+  } else if (args._[0] === "get") {
+    const id = Number(args._[1]);
+    console.log(await controller.get({ id }));
+  } else if (args._[0] === "search") {
+    console.log(
+      await controller.get({
+        search: { title: args.title, tag: args.tag },
+      })
+    );
+  } else {
+    console.log(await controller.get());
   }
 }
+
+main();
