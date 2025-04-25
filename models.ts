@@ -7,7 +7,7 @@ export type Peli = {
 };
 
 export class PelisCollection {
-  private fileLocation = "./pelis.json";
+  constructor(private fileLocation = "./pelis.json") {}
 
   async add(peli: Peli): Promise<boolean> {
     const peliExistente = await this.getById(peli.id);
@@ -27,14 +27,14 @@ export class PelisCollection {
 
   async getById(id: number): Promise<Peli | undefined> {
     const data = await this.getAll();
-    return data.find((peli) => peli.id === id);
+    return data.find((p) => p.id === id);
   }
 
   async search(options: { title?: string; tag?: string }): Promise<Peli[]> {
     const data = await this.getAll();
-    return data.filter((peli) => {
-      const titleMatch = options.title ? peli.title.includes(options.title) : true;
-      const tagMatch = options.tag ? peli.tags.includes(options.tag) : true;
+    return data.filter((p) => {
+      const titleMatch = options.title ? p.title.includes(options.title) : true;
+      const tagMatch   = options.tag   ? p.tags.includes(options.tag)   : true;
       return titleMatch && tagMatch;
     });
   }
