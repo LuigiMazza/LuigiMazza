@@ -1,29 +1,24 @@
-import * as minimist from "minimist";
-import { PelisController } from "./controller";
+import { PelisCollection, Peli } from "./models";
 
-async function main() {
-  const args = minimist(process.argv.slice(2));
-  const controller = new PelisController();
+export class PelisController {
+  collection: PelisCollection;
 
-  if (args._[0] === "add") {
-    const newPeli = {
-      id: args.id,
-      title: args.title,
-      tags: Array.isArray(args.tags) ? args.tags : [args.tags],
-    };
-    const result = await controller.add(newPeli);
-    console.log(result ? "Pelicula agregada correctamente" : "No se pudo agregar la pelicula");
-  } else if (args._[0] === "get") {
-    const peli = await controller.get({ id: args._[1] });
-    console.log(peli);
-  } else if (args._[0] === "search") {
-    const searchOptions = { title: args.title, tag: args.tag };
-    const result = await controller.get({ search: searchOptions });
-    console.log(result);
-  } else {
-    const allMovies = await controller.get();
-    console.log(allMovies);
+  constructor() {
+    this.collection = new PelisCollection();
+  }
+
+  async get(options?: { id?: number; search?: any }): Promise<Peli[]> {
+    if (options?.id) {
+      const peli = await this.collection.getById(options.id);
+      return peli ? [peli] : [];
+    }
+    if (options?.search) {
+      return this.collection.search(options.search);
+    }
+    return this.collection.getAll();
+  }
+
+  getOne(options: { id?: number; search?: any }): Promise<Peli | undefined> {
+    return this.get(options).then((arr) => arr[0]);
   }
 }
-
-main();
