@@ -21,5 +21,8 @@ export class PelisController {
   getOne(options: { id?: number; search?: any }): Promise<Peli | undefined> {
     return this.get(options).then((arr) => arr[0]);
   }
+  async add(peli: Peli): Promise<boolean> {
+    return this.collection.add(peli);
+  }
 }
 
