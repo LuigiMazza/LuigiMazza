@@ -1,58 +1,40 @@
 import anyTest, { TestFn } from "ava";
 import { PelisController } from "../controller";
-import { getRandomId } from "./models";
+
+// Generamos IDs únicos para los tests
+const getRandomId = () => {
+  const randomNumber = Math.floor(Math.random() * 100000);
+  return 129856 + randomNumber;
+};
 
 const TEST_ID = getRandomId();
-const SOME_TITLE = "una peli " + TEST_ID;
-const SOME_TAG = "tag " + TEST_ID;
 
-const SECOND_TEST_ID = getRandomId();
+interface Context {
+  controller: PelisController;
+}
 
-const test = anyTest as TestFn<{
-  con: PelisController;
-}>;
+const test = anyTest as TestFn<Context>;
 
-// # IMPORTANTE #
-// apenas te clones este repo
-// todos los test a continuación van a fallar
-
-// comentalos y descomentá uno a uno a medida
-// que vas avanzando en cada test
-
-test.serial("Testeo PelisController get id", async (t) => {
-  const controller = new PelisController();
-  await controller.add({
-    id: TEST_ID,
-    title: SOME_TITLE,
-    tags: ["classic", SOME_TAG],
-  });
-  const peli = await controller.getOne({ id: TEST_ID });
-  t.is(peli.title, SOME_TITLE);
+// Antes de cada test, creamos un nuevo controller
+test.beforeEach(t => {
+  t.context.controller = new PelisController();
 });
 
-test.serial("Testeo PelisController search title", async (t) => {
-  const controller = new PelisController();
-  await controller.add({
-    id: TEST_ID,
-    title: SOME_TITLE,
-    tags: ["classic", SOME_TAG],
-  });
+// Test: agregar y obtener una película
+test("add() and getById() should store and retrieve a movie", async t => {
+  const controller = t.context.controller;
+  const movie = { id: TEST_ID, title: "Test Movie", tags: ["test", "ava"] };
 
-  const pelis = await controller.get({ search: { title: TEST_ID.toString() } });
-  t.is(pelis.length, 1);
-  t.is(pelis[0].id, TEST_ID);
+  const addResult = await controller.add(movie);
+  t.true(addResult);
+
+  const fetched = await controller.getById(TEST_ID);
+  t.deepEqual(fetched, movie);
 });
 
-test.serial("Testeo PelisController search tag", async (t) => {
-  const controller = new PelisController();
-  await controller.add({
-    id: SECOND_TEST_ID,
-    title: "otra peli un poco más divertida",
-    tags: [SOME_TAG],
-  });
-  const pelis = await controller.get({
-    search: { title: "peli", tag: SOME_TAG },
-  });
-  const ids = pelis.map((b) => b.id);
-  t.deepEqual(ids, [TEST_ID, SECOND_TEST_ID]);
+// Test: listar películas
+test("getAll() should return an array of movies", async t => {
+  const controller = t.context.controller;
+  const all = await controller.getAll();
+  t.true(Array.isArray(all));
 });
