@@ -1,6 +1,6 @@
 import * as jsonfile from "jsonfile";
 
-type Peli = {
+export type Peli = {
   id: number;
   title: string;
   tags: string[];
