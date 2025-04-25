@@ -1,6 +1,6 @@
 import anyTest, { TestFn } from "ava";
 import { PelisController } from "../controller";
-import { PelisCollection, Peli } from "./models";
+import { getRandomId } from "./models";
 
 const TEST_ID = getRandomId();
 const SOME_TITLE = "una peli " + TEST_ID;
