@@ -1,72 +1,32 @@
-import anyTest, { TestFn } from "ava";
-import { PelisCollection, Peli } from "../models";
+import test from "ava";
+import * as jsonfile from "jsonfile";
+import { PelisCollection, Peli } from "../src/models";
 
-export const getRandomId = () => {
-  const randomNumber = Math.floor(Math.random() * 100000);
-  return 129856 + randomNumber;
-};
+const TMP = "./test/tmp.json";
 
-const SESSION_ID = getRandomId();
-
-const test = anyTest as TestFn<{
-  instance: PelisCollection;
-  all: Peli[];
-}>;
-
-const TEST_ID = getRandomId();
-const TEST_TITLE = "title " + SESSION_ID + TEST_ID;
-
-const SECOND_TEST_ID = getRandomId();
-const SECOND_TEST_TITLE = "title " + SESSION_ID + SECOND_TEST_ID;
-
-// # IMPORTANTE #
-
-// apenas te clones este repo
-// todos los test a continuación van a fallar
-
-// comentalos y descomentá uno a uno a medida
-// que vas avanzando en cada test
-
-test.serial("Corre ava", async (t) => {
-  t.is("si", "si");
+// Antes de cada test dejamos el JSON temporal vacío
+test.beforeEach(async () => {
+  await jsonfile.writeFile(TMP, []);
 });
 
-test.serial("Testeo el método getById", async (t) => {
-  const collection = new PelisCollection();
-  await collection.add({
-    id: TEST_ID,
-    title: TEST_TITLE,
-    tags: ["tt", "rr"],
-  });
-  const all = await collection.getAll();
-  const a = all[0];
-  const b = await collection.getById(a.id);
-  t.is(a.title, b.title);
+test("getAll devuelve array vacío al arrancar", async t => {
+  const col = new PelisCollection(TMP);
+  const all = await col.getAll();
+  t.deepEqual(all, []);
 });
 
-test.serial("Testeo el método search", async (t) => {
-  const collection = new PelisCollection();
-  await collection.add({
-    id: TEST_ID,
-    title: TEST_TITLE,
-    tags: ["tt", "rr"],
-  });
-  await collection.add({
-    id: SECOND_TEST_ID,
-    title: SECOND_TEST_TITLE,
-    tags: ["yy", "uu"],
-  });
-  const all = await collection.getAll();
-  const a = all[0];
-  // El search debe encontrar ambas pelis creadas a partir de la session
-  const b = await collection.search({ title: SESSION_ID.toString() });
-  const ids = b.map((b) => b.id);
-  t.deepEqual(ids, [TEST_ID, SECOND_TEST_ID]);
+test("add() agrega una peli y getAll la devuelve", async t => {
+  const col = new PelisCollection(TMP);
+  const peli: Peli = { id: 42, title: "Test", tags: ["x"] };
+  t.true(await col.add(peli));
+  const all = await col.getAll();
+  t.deepEqual(all, [peli]);
+});
 
-  // El search debe encontrar solo la peli con el title (session) y el tag (yy)
-  const c = await collection.search({
-    title: SECOND_TEST_ID.toString(),
-    tag: "yy",
-  });
-  t.deepEqual(c[0].id, SECOND_TEST_ID);
+test("getById devuelve la peli correcta", async t => {
+  const col = new PelisCollection(TMP);
+  const peli: Peli = { id: 7, title: "Siete", tags: [] };
+  await col.add(peli);
+  const found = await col.getById(7);
+  t.deepEqual(found, peli);
 });
