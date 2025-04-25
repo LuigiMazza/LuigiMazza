@@ -6,25 +6,28 @@ import { PelisController } from "./controller";
   const controller = new PelisController();
 
   if (args._[0] === "add") {
-    const id = Number(args.id);
+    // npx tsx src/index.ts add --id=123 --title="Una peli" --tags=drama --tags=historia
+    const id    = Number(args.id);
     const title = String(args.title);
-    const tags = Array.isArray(args.tags) ? args.tags : [String(args.tags)];
-
-    // Delegamos la lógica de "add" al Controller
-    const success = await controller.add({ id, title, tags });
-    console.log(success);
+    const tags  = Array.isArray(args.tags)
+                    ? (args.tags as any[])
+                    : [String(args.tags)];
+    console.log(await controller.add({ id, title, tags }));
   }
-
-  if (args._[0] === "list") {
-    const all = await controller.getAll();
-    console.log(all);
+  else if (args._[0] === "get") {
+    // npx tsx src/index.ts get 4411
+    const id = Number(args._[1]);
+    console.log(await controller.getOne({ id }));
   }
-
-  if (args._[0] === "search") {
-    const term = String(args.term);
-    const results = await controller.search({ term });
-    console.log(results);
+  else if (args._[0] === "search") {
+    // npx tsx src/index.ts search --title="a" --tag="classic"
+    const opts: { title?: string; tag?: string } = {};
+    if (args.title) opts.title = String(args.title);
+    if (args.tag)   opts.tag   = String(args.tag);
+    console.log(await controller.get({ search: opts }));
   }
-
-  // ... otros comandos según necesidad ...
+  else {
+    // npx tsx src/index.ts   → lista todas
+    console.log(await controller.get());
+  }
 })();
