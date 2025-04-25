@@ -1,4 +1,4 @@
-import { PelisCollection, Peli } from "./models"; // ← También aplica Mejora 3
+import { PelisCollection, Peli } from "./models";
 
 export class PelisController {
   collection: PelisCollection;
@@ -18,8 +18,8 @@ export class PelisController {
     return this.collection.getAll();
   }
 
-  // ✅ 2. getOne: devuelve el primer resultado
   getOne(options: { id?: number; search?: any }): Promise<Peli | undefined> {
     return this.get(options).then((arr) => arr[0]);
   }
 }
+
